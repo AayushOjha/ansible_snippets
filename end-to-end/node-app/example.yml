@@ -1,0 +1,63 @@
+---
+- name: Install NVM, Node.js, and PM2
+  hosts: target_hosts
+  vars:
+    next_app_remote_url: https://github.com/AayushOjha/lcp_test.git
+    next_app_path: /apps/lcp-app/
+    nvm_path: /root/.nvm/versions/node/v12.22.12/bin/npm
+    next_app_name: lcp-app
+
+  become: yes
+
+  tasks:
+    - name: Install NVM
+      become: yes
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+
+    - name: Install Node.js version 16 using NVM
+      become: yes
+      shell: |
+        source ~/.nvm/nvm.sh && nvm install 16
+      args:
+        executable: /bin/bash
+
+    - name: Use Node.js version 16
+      become: yes
+      shell: |
+        source ~/.nvm/nvm.sh && nvm use 16
+      args:
+        executable: /bin/bash
+
+    - name: Install PM2 globally
+      become: yes
+      shell: |
+        source ~/.nvm/nvm.sh && npm install -g pm2
+      args:
+        executable: /bin/bash
+
+    - name: Clone Git repository
+      git:
+        repo: '{{ next_app_remote_url }}'
+        dest: '{{ next_app_path }}'
+
+    - name: Install node modules
+      shell: |
+        source ~/.nvm/nvm.sh && npm i
+      args:
+        executable: /bin/bash
+        chdir: '{{ next_app_path }}'
+
+    - name: Building next app
+      shell: |
+        source ~/.nvm/nvm.sh && npm run build
+      args:
+        executable: /bin/bash
+        chdir: '{{ next_app_path }}'
+
+    - name: Starting production server
+      shell: |
+        source ~/.nvm/nvm.sh && pm2 start 'npm run start' --name '{{ next_app_name }}'
+      args:
+        executable: /bin/bash
+        chdir: '{{ next_app_path }}'
