@@ -1,0 +1,31 @@
+---
+- name: Install NVM, Node.js, and PM2
+  hosts: target_hosts
+  become: yes
+
+  tasks:
+    - name: Install NVM
+      become: yes
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+
+    - name: Install Node.js version 16 using NVM
+      become: yes
+      shell: |
+        source ~/.nvm/nvm.sh && nvm install 16
+      args:
+        executable: /bin/bash
+
+    - name: Use Node.js version 16
+      become: yes
+      shell: |
+        source ~/.nvm/nvm.sh && nvm use 16
+      args:
+        executable: /bin/bash
+
+    - name: Install PM2 globally
+      become: yes
+      shell: |
+        source ~/.nvm/nvm.sh && npm install -g pm2
+      args:
+        executable: /bin/bash
