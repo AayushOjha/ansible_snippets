@@ -14,13 +14,16 @@
       become: yes
       shell: |
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+      args:
+        creates: '~/.nvm'
 
     - name: Install Node.js version 16 using NVM
       become: yes
       shell: |
-        source ~/.nvm/nvm.sh && nvm install 16
+        source ~/.nvm/nvm.sh && nvm install '{{ node_version }}'
       args:
         executable: /bin/bash
+        creates: '~/.nvm/versions/node/{{ node_version }}/'
 
     - name: Use Node.js version 16
       become: yes
@@ -35,6 +38,7 @@
         source ~/.nvm/nvm.sh && npm install -g pm2
       args:
         executable: /bin/bash
+        creates: '~/.nvm/versions/node/{{ node_version }}/bin/pm2'
 
     - name: Clone Git repository
       git:
