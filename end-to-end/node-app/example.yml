@@ -40,10 +40,8 @@
         executable: /bin/bash
         creates: '~/.nvm/versions/node/{{ node_version }}/bin/pm2'
 
-    - name: Clone Git repository
-      git:
-        repo: '{{ next_app_remote_url }}'
-        dest: '{{ next_app_path }}'
+    - name: Fetching code form git
+      include_tasks: ../../building-blocks/git-repo.yml
 
     - name: Install node modules
       shell: |

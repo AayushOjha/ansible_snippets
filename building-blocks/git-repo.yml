@@ -1,0 +1,30 @@
+---
+- name: Check if local Git repository exists
+  stat:
+    path: '{{ next_app_path }}/.git'
+  register: git_repo_stat
+
+- name: Check if local modifications exist
+  command: git -C {{ next_app_path }} status --porcelain
+  register: git_status
+  changed_when: false
+  when: git_repo_stat.stat.exists
+
+- name: Reset local modifications
+  command: git -C {{ next_app_path }} reset --hard HEAD
+  when: git_repo_stat.stat.exists and git_status.stdout | length > 0
+
+- name: Clone Git repo if specified path is empty
+  git:
+    repo: '{{ next_app_remote_url }}'
+    dest: '{{ next_app_path }}'
+    version: '{{ next_app_branch }}'
+  when: not git_repo_stat.stat.exists
+
+- name: Pull Git repository if specified path already has files
+  git:
+    repo: '{{ next_app_remote_url }}'
+    dest: '{{ next_app_path }}'
+    version: '{{ next_app_branch }}'
+    update: yes
+  when: git_repo_stat.stat.exists

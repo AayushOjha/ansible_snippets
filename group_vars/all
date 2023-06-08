@@ -1,2 +1,4 @@
 ansible_user: root
 node_version: v16.20.0
+
+next_app_branch: main
